@@ -1,23 +1,19 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from api.movie import movies_router
 from api.link import router_link
 from api.rating import router_rating
 from api.tag import router_tag
-from db.load_data import load_all_data
+from db.load_data import init_db
+from db.config import Base, engine, SessionLocal
 
 app = FastAPI()
-router = APIRouter()
 
-load_all_data()
+Base.metadata.create_all(bind=engine)
+
+with SessionLocal() as db:
+    init_db(db)
 
 app.include_router(movies_router)
 app.include_router(router_link)
 app.include_router(router_rating)
 app.include_router(router_tag)
-
-
-app.get("/hello_world")
-
-
-def read_root():
-    return {"Hello": "World"}

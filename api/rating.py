@@ -1,8 +1,12 @@
-from fastapi import APIRouter
-from db.load_data import data_store
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from db.config import get_db
+from models.rating import Rating
 
 router_rating = APIRouter(tags=["ratings"])
 
+
 @router_rating.get("/ratings_list")
-async def get_ratings():
-    return [item.__dict__ for item in data_store["ratings"]]
+async def get_ratings(db: Session = Depends(get_db)):
+    ratings = db.query(Rating).limit(1000).all()
+    return [rating.to_dict() for rating in ratings]

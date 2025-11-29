@@ -6,76 +6,99 @@ from models.movie import Movie
 from models.link import Link
 from models.rating import Rating
 from models.tag import Tag
+from sqlalchemy.orm import Session
 
-data_store = {"movies": [], "links": [], "ratings": [], "tags": []}
 
+def init_db(db: Session):
+    if db.query(Movie).first():
+        print("Baza danych już zawiera filmy. Pomijanie pobierania.")
+        return
 
-def load_all_data():
     FILE_ID = "1ffJ15YV980hfVj-T1MdD0XIkPUEyqPsF"
     DOWNLOAD_URL = f"https://drive.google.com/uc?export=download&id={FILE_ID}"
 
-    print("--- Rozpoczynanie pobierania pliku ZIP ---")
+    print("--- Pobieranie pliku ZIP ---")
     response = requests.get(DOWNLOAD_URL)
     if response.status_code != 200:
         raise Exception("Błąd pobierania pliku")
 
-    print("--- Plik pobrany. Rozpakowywanie i parsowanie ---")
+    print("--- Rozpakowywanie i zapisywanie do bazy SQLite ---")
 
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         all_files = z.namelist()
 
-        """--- 1.  Przetwarzanie MOVIES ---"""
+        """--- Movies ---"""
         movies_file = next((n for n in all_files if "movies.csv" in n), None)
         if movies_file:
+            print("Wstawianie filmów...")
             with z.open(movies_file) as f:
                 reader = csv.DictReader(io.TextIOWrapper(f, encoding="utf-8"))
+                movies_to_add = []
                 for row in reader:
-                    data_store["movies"].append(
-                        Movie(row["movieId"], row["title"], row["genres"])
+                    movies_to_add.append(
+                        Movie(
+                            movie_id=int(row["movieId"]),
+                            title=row["title"],
+                            genres=row["genres"],
+                        )
                     )
-            print(f"Załadowano {len(data_store['movies'])} filmów.")
+                db.add_all(movies_to_add)
+                db.commit()
 
-        """--- 2. Przetwarzanie LINKS ---"""
+        """--- Links ---"""
         links_file = next((n for n in all_files if "links.csv" in n), None)
         if links_file:
+            print("Wstawianie linków...")
             with z.open(links_file) as f:
                 reader = csv.DictReader(io.TextIOWrapper(f, encoding="utf-8"))
+                links_to_add = []
                 for row in reader:
-                    # Uwaga: tmdbId czasem jest puste w danych, warto to obsłużyć (tutaj zakładam że jest)
-                    obj = Link(
-                        movie_id=row["movieId"],
-                        imbdld=row["imdbId"],  # Mapowanie: CSV imdbId -> Klasa imbdld
-                        tmdbld=row["tmdbId"],  # Mapowanie: CSV tmdbId -> Klasa tmdbld
+                    links_to_add.append(
+                        Link(
+                            movie_id=int(row["movieId"]),
+                            imbdld=row["imdbId"],
+                            tmdbld=row["tmdbId"],
+                        )
                     )
-                    data_store["links"].append(obj)
-            print(f"Załadowano {len(data_store['links'])} linków.")
+                db.add_all(links_to_add)
+                db.commit()
 
-        """--- 3. Przetwarzanie RATINGS ---"""
-        ratings_file = next((n for n in all_files if "ratings.csv" in n), None)
-        if ratings_file:
-            with z.open(ratings_file) as f:
-                reader = csv.DictReader(io.TextIOWrapper(f, encoding="utf-8"))
-                for row in reader:
-                    obj = Rating(
-                        user_id=row["userId"],
-                        movie_id=row["movieId"],
-                        rating=row["rating"],
-                        timestamp=row["timestamp"],
-                    )
-                    data_store["ratings"].append(obj)
-            print(f"Załadowano {len(data_store['ratings'])} ocen.")
-
-        """--- 4. Przetwarzanie TAGS ---"""
+        """--- Tags ---"""
         tags_file = next((n for n in all_files if "tags.csv" in n), None)
         if tags_file:
+            print("Wstawianie tagów...")
             with z.open(tags_file) as f:
                 reader = csv.DictReader(io.TextIOWrapper(f, encoding="utf-8"))
+                tags_to_add = []
                 for row in reader:
-                    obj = Tag(
-                        user_id=row["userId"],
-                        movie_id=row["movieId"],
-                        tag=row["tag"],
-                        timestamp=row["timestamp"],
+                    tags_to_add.append(
+                        Tag(
+                            user_id=int(row["userId"]),
+                            movie_id=int(row["movieId"]),
+                            tag=row["tag"],
+                            timestamp=int(row["timestamp"]),
+                        )
                     )
-                    data_store["tags"].append(obj)
-            print(f"Załadowano {len(data_store['tags'])} tagów.")
+                db.add_all(tags_to_add)
+                db.commit()
+
+        """--- Ratings ---"""
+        ratings_file = next((n for n in all_files if "ratings.csv" in n), None)
+        if ratings_file:
+            print("Wstawianie ocen (to najdłuższy etap)...")
+            with z.open(ratings_file) as f:
+                reader = csv.DictReader(io.TextIOWrapper(f, encoding="utf-8"))
+                ratings_to_add = []
+                for row in reader:
+                    ratings_to_add.append(
+                        Rating(
+                            user_id=int(row["userId"]),
+                            movie_id=int(row["movieId"]),
+                            rating=float(row["rating"]),
+                            timestamp=int(row["timestamp"]),
+                        )
+                    )
+                db.add_all(ratings_to_add)
+                db.commit()
+
+    print("--- Zakończono ładowanie danych do bazy ---")

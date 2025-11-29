@@ -1,9 +1,20 @@
-class Rating:
-    def __init__(self, user_id: int, movie_id: int, rating: float, timestamp: int):
-        self.user_id = user_id
-        self.movie_id = movie_id
-        self.rating = rating
-        self.timestamp = timestamp
+from sqlalchemy import Column, Integer, Float
+from db.config import Base
 
-    def __repr__(self):
-        return f"Rating(user_id={self.user_id}, movie_id={self.movie_id}, rating={self.rating}, timestamp={self.timestamp})"
+
+class Rating(Base):
+    __tablename__ = "ratings"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, index=True)
+    movie_id = Column(Integer, index=True)
+    rating = Column(Float)
+    timestamp = Column(Integer)
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "movie_id": self.movie_id,
+            "rating": self.rating,
+            "timestamp": self.timestamp,
+        }
