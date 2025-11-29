@@ -85,7 +85,7 @@ def init_db(db: Session):
         """--- Ratings ---"""
         ratings_file = next((n for n in all_files if "ratings.csv" in n), None)
         if ratings_file:
-            print("Wstawianie ocen (to najdłuższy etap)...")
+            print("Wstawianie ocen ...")
             with z.open(ratings_file) as f:
                 reader = csv.DictReader(io.TextIOWrapper(f, encoding="utf-8"))
                 ratings_to_add = []
