@@ -5,7 +5,7 @@ from db.config import Base
 class Tag(Base):
     __tablename__ = "tags"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True, unique=True)
     user_id = Column(Integer)
     movie_id = Column(Integer)
     tag = Column(String)
@@ -13,6 +13,7 @@ class Tag(Base):
 
     def to_dict(self):
         return {
+            "id": self.id,
             "user_id": self.user_id,
             "movie_id": self.movie_id,
             "tag": self.tag,

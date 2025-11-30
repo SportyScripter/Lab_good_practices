@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 with SessionLocal() as db:
     init_db(db)
 
-app.include_router(movies_router)
-app.include_router(router_link)
-app.include_router(router_rating)
-app.include_router(router_tag)
+app.include_router(movies_router, prefix="/movies")
+app.include_router(router_link, prefix="/links")
+app.include_router(router_rating, prefix="/ratings")
+app.include_router(router_tag, prefix="/tags")

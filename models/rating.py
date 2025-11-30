@@ -13,6 +13,7 @@ class Rating(Base):
 
     def to_dict(self):
         return {
+            "id": self.id,
             "user_id": self.user_id,
             "movie_id": self.movie_id,
             "rating": self.rating,
