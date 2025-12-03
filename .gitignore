@@ -5,7 +5,8 @@ __pycache__/
 movies.db
 # C extensions
 *.so
-
+test_db.db
+test.db
 # Distribution / packaging
 .Python
 build/
