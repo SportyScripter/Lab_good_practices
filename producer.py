@@ -1,6 +1,5 @@
-import csv
 import uuid
-import os
+from db_config import cur, con
 
 DB_FILE = "task.csv"
 
@@ -8,15 +7,8 @@ DB_FILE = "task.csv"
 def add_task():
     task_id = str(uuid.uuid4())
     status = "pending"
-
-    file_exists = os.path.isfile(DB_FILE)
-
-    with open(DB_FILE, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(["id", "status"])
-        writer.writerow([task_id, status])
-        print(f"[Producer] Dodano nowe zadanie: {task_id} z statusem '{status}'")
+    cur.execute("INSERT INTO tasks (id, status) VALUES (?, ?)", (task_id, status))
+    con.commit()
 
 
 if __name__ == "__main__":
@@ -26,3 +18,7 @@ if __name__ == "__main__":
     count = int(input("Liczba zadań: "))
     for _ in range(count):
         add_task()
+
+for row in cur.execute("SELECT * FROM tasks"):
+    print(row)
+con.close()
