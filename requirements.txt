@@ -1,0 +1,6 @@
+flask
+pika
+requests
+numpy
+opencv-python-headless
+ultralytics
