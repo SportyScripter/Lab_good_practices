@@ -1,0 +1,7 @@
+ultralytics
+paddlepaddle
+paddleocr
+opencv-python
+pandas
+lxml
+scikit-learn
