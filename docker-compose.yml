@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: alpr_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - alpr_net
+
+  redis-ui:
+    image: rediscommander/redis-commander:latest
+    container_name: alpr_redis_ui
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - alpr_net
+
+  api:
+    build: .
+    container_name: alpr_api
+    command: uvicorn src.api:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    volumes:
+      - ./src/uploads:/app/uploads
+      - ./src/plates.db:/app/plates.db
+    networks:
+      - alpr_net
+
+  worker:
+    build: .
+    container_name: alpr_worker
+    command: python -m src.worker
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+      - api
+    volumes:
+      - ./src/uploads:/app/uploads
+      - ./src/plates.db:/app/plates.db
+    networks:
+      - alpr_net
+  db-ui:
+    image: coleifer/sqlite-web
+    container_name: alpr_db_ui
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./src/plates.db:/data/plates.db
+    # ZMIANA PONIŻEJ:
+    # Uruchamiamy aplikację sqlite_web, nasłuchującą na wszystkich interfejsach (-H 0.0.0.0)
+    # na porcie 8080 (-p 8080) wskazując plik bazy
+    command: sqlite_web -H 0.0.0.0 -p 8080 /data/plates.db
+    networks:
+      - alpr_net
+
+networks:
+  alpr_net:
+    driver: bridge

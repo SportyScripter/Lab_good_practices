@@ -5,13 +5,14 @@ __pycache__/
 movies.db
 # C extensions
 *.so
-data.yaml
 data/
 datasets/
 runs/
 src/debug/
 src/yolov8n.pt
 yolov8n.pt
+src/uploads/
+src/plates.db
 # Distribution / packaging
 .Python
 build/
