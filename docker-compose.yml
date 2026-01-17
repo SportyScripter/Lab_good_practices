@@ -59,9 +59,6 @@ services:
       - "8082:8080"
     volumes:
       - ./src/plates.db:/data/plates.db
-    # ZMIANA PONIŻEJ:
-    # Uruchamiamy aplikację sqlite_web, nasłuchującą na wszystkich interfejsach (-H 0.0.0.0)
-    # na porcie 8080 (-p 8080) wskazując plik bazy
     command: sqlite_web -H 0.0.0.0 -p 8080 /data/plates.db
     networks:
       - alpr_net

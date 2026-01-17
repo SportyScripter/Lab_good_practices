@@ -237,7 +237,6 @@ class LicensePlateSystem:
                                 detected_text = text1
                             else:
                                 # --- ETAP 2: CIĘŻKI (CLAHE + SHARPEN) ---
-                                # Tylko dla trudnych przypadków (np. 169.jpg, 175.jpg)
                                 clahe = cv2.createCLAHE(
                                     clipLimit=2.0, tileGridSize=(8, 8)
                                 )
