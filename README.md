@@ -74,7 +74,7 @@ The application follows the **Producer-Consumer** pattern to handle heavy ML inf
 We are using a specific branch for the final project version. Please use the command below to clone the correct branch directly:
 
 ```bash
-git clone -b automatic_plate_number_recognition [https://github.com/SportyScripter/Lab_good_practices.git](https://github.com/SportyScripter/Lab_good_practices.git)
+git clone -b automatic_plate_number_recognition https://github.com/SportyScripter/Lab_good_practices.git
 
 cd Lab_good_practices
 ```
