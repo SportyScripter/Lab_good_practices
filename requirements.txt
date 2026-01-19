@@ -1,0 +1,14 @@
+ultralytics
+paddlepaddle
+easyocr
+paddleocr
+opencv-python
+pandas
+lxml
+scikit-learn
+fastapi
+uvicorn
+python-multipart
+redis
+numpy
+tqdm
